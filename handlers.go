@@ -8,7 +8,8 @@ import (
 )
 
 func (a *application) helloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "hello there!")
+
+	fmt.Fprintf(w, "hello there!\nwe're running on %s.", a.config.env)
 }
 
 func (a *application) createUser(w http.ResponseWriter, r *http.Request) {
