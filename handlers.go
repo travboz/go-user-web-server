@@ -20,14 +20,23 @@ func (a *application) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if user.Name == "" {
-		http.Error(w, "name is required", http.StatusInternalServerError)
+		http.Error(w, ErrNameRequired.Error(), http.StatusBadRequest)
 		return
 	}
 
 	user = a.cache.Insert(user)
 
-	fmt.Fprintf(w, "The user's name is: %s", user.Name)
-	w.WriteHeader(http.StatusNoContent)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(user)
+}
+
+func (a *application) getAllUsers(w http.ResponseWriter, _ *http.Request) {
+	users := a.cache.GetAll()
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(users)
 }
 
 func (a *application) getUserById(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +49,7 @@ func (a *application) getUserById(w http.ResponseWriter, r *http.Request) {
 	user, err := a.cache.Get(id)
 
 	if err != nil {
-		http.Error(w, "user not found", http.StatusNotFound)
+		http.Error(w, ErrUserDoesNotExist.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -63,12 +72,10 @@ func (a *application) deleteUserById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = a.cache.Delete(id)
-
 	if err != nil {
 		http.Error(w, "user does not exist", http.StatusNotFound)
 		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-
 }

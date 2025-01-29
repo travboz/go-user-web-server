@@ -1,13 +1,13 @@
 package main
 
 import (
-	"errors"
 	"sync"
 )
 
 type SafeCache struct {
 	userCache  map[int]User
 	cacheMutex sync.RWMutex
+	nextID     int
 }
 
 func NewSafeCache() *SafeCache {
@@ -18,8 +18,10 @@ func NewSafeCache() *SafeCache {
 
 func (s *SafeCache) Insert(u User) User {
 	s.cacheMutex.Lock()
-	s.userCache[len(s.userCache)+1] = u
-	s.cacheMutex.Unlock()
+	defer s.cacheMutex.Unlock()
+
+	s.nextID++
+	s.userCache[s.nextID] = u
 
 	return u
 }
@@ -30,25 +32,32 @@ func (s *SafeCache) Get(id int) (User, error) {
 	s.cacheMutex.RUnlock()
 
 	if !exists {
-		return User{}, errors.New("user doesn't exist")
+		return User{}, ErrUserDoesNotExist
 	}
 
 	return user, nil
 }
 
+func (s *SafeCache) GetAll() []User {
+	s.cacheMutex.RLock()
+	defer s.cacheMutex.RUnlock()
+
+	users := make([]User, 0, len(s.userCache))
+	for _, user := range s.userCache {
+		users = append(users, user)
+	}
+
+	return users
+}
+
 func (s *SafeCache) Delete(id int) error {
 	s.cacheMutex.Lock()
-	_, ok := s.userCache[id]
+	defer s.cacheMutex.Unlock()
 
-	if ok {
-		delete(s.userCache, id)
+	if _, exists := s.userCache[id]; !exists {
+		return ErrUserDoesNotExist
 	}
 
-	s.cacheMutex.Unlock()
-
-	if !ok {
-		return errors.New("user doesn't exist")
-	}
-
+	delete(s.userCache, id)
 	return nil
 }
