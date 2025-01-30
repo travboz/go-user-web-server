@@ -11,8 +11,8 @@ A simple Go web server that manages user data in an in-memory cache with thread 
 ## Installation
 1. Clone this repository:
    ```sh
-   git clone https://github.com/yourusername/go-user-api.git
-   cd go-user-api
+   git clone https://github.com/travboz/go-user-web-server.git
+   cd go-user-web-server
    ```
 2. Run server:
    ```sh
@@ -68,5 +68,6 @@ Feel free to fork and submit PRs!
 
 ## License:
 `MIT`
+
 
 This should work for GitHub! Let me know if you need any tweaks. 
