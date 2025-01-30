@@ -18,8 +18,16 @@ A simple Go web server that manages user data in an in-memory cache with thread 
    ```sh
    make run
    ```
-3. Navigate to `http://localhost:4545` and call an endpoint
+3. Navigate to `http://localhost<SERVER_PORT>` and call an endpoint
 
+### `.env` file
+This server uses a `.env` file for basic configuration.
+Here is an example of the `.env`:
+   ```sh
+   SERVER_PORT=":4545"
+   ENV="development"
+   ```
+   
 ## API Endpoints
 
 - Add a user (`POST /users`)
